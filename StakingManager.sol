@@ -377,13 +377,9 @@ contract StakingManager is Ownable {
         require(proxies.length > 0, "No proxies defined.");
         require(_recipient != address(0));
         require(_amount != 0); // why would anyone need to stake 0 HEC?
-        IStaking(staking).rebase();
-        uint stakingEpoch=getStakingEpoch();
-        if ( epoch < stakingEpoch) {
-            epoch = stakingEpoch; // set next epoch block
 
-            claim(_recipient); // claim any expired warmups before rolling to the next epoch
-        }
+        IStaking(staking).rebase();
+        claim(_recipient); // claim any expired warmups before rolling to the next epoch
         
         address targetProxy = proxies[warmupPeriod == 0 ? 0 : epoch % warmupPeriod];
         require(targetProxy != address(0));
@@ -402,9 +398,5 @@ contract StakingManager is Ownable {
             
             IStakingProxy(proxies[i]).claim(_recipient);
         }
-    }
-
-    function getStakingEpoch() view public returns(uint stakingEpoch){
-        (,stakingEpoch,,)=IStaking(staking).epoch();
     }
 }
