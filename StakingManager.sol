@@ -381,7 +381,7 @@ contract StakingManager is Ownable {
         IStaking(staking).rebase();
         claim(_recipient); // claim any expired warmups before rolling to the next epoch
         
-        address targetProxy = proxies[warmupPeriod == 0 ? 0 : epoch % warmupPeriod];
+        address targetProxy = proxies[warmupPeriod == 0 ? 0 : getStakingEpoch() % warmupPeriod];
         require(targetProxy != address(0));
         
         IERC20(HEC).safeTransferFrom(msg.sender, targetProxy, _amount);
@@ -398,5 +398,9 @@ contract StakingManager is Ownable {
             
             IStakingProxy(proxies[i]).claim(_recipient);
         }
+    }
+
+    function getStakingEpoch() view public returns(uint stakingEpoch){
+        (,stakingEpoch,,)=IStaking(staking).epoch();
     }
 }
